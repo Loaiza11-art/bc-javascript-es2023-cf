@@ -19,11 +19,11 @@
 
 // TODO: Reemplaza con el nombre de tu dominio
 // Ejemplos: "Biblioteca", "Farmacia", "Gimnasio", "Restaurante"
-const DOMAIN_NAME = "Mi Catálogo";
+const DOMAIN_NAME = "Contabilidad PYME";
 
 // TODO: Reemplaza con el nombre del tipo de elemento
 // Ejemplos: "libros", "medicamentos", "equipos", "platillos"
-const VALUE_LABEL = "elementos";
+const VALUE_LABEL = "Transacciones";
 
 // ============================================
 // DATOS DEL CATÁLOGO
@@ -38,6 +38,52 @@ const VALUE_LABEL = "elementos";
 //   - Al menos 1 propiedad opcional (no todos los objetos la tienen)
 
 const items = [
+ 
+  {
+    id: 1,
+    name: "Venta de productos",
+    amount: 150000,
+    type: "ingreso",
+    active: true,
+    client: "Tienda ABC" // opcional
+  },
+  {
+    id: 2,
+    name: "Pago de servicios",
+    amount: 50000,
+    type: "egreso",
+    active: true
+  },
+  {
+    id: 3,
+    name: "Compra de insumos",
+    amount: 80000,
+    type: "egreso",
+    active: false,
+    provider: "Proveedor XYZ"
+  },
+  {
+    id: 4,
+    name: "Ingreso por consultoría",
+    amount: 200000,
+    type: "ingreso",
+    active: true
+  },
+  {
+    id: 5,
+    name: "Pago de nómina",
+    amount: 300000,
+    type: "egreso",
+    active: true
+  },
+  {
+    id: 6,
+    name: "Venta online",
+    amount: 120000,
+    type: "ingreso",
+    active: false
+  }
+
   // TODO: Objeto 1
   // TODO: Objeto 2
   // TODO: Objeto 3
@@ -56,6 +102,11 @@ const items = [
  */
 const inspectItem = (item) => {
   console.log(`\n📋 Detalle de: ${item.name}`);
+
+  Object.entries(item).forEach(([key, value]) => {
+    console.log(key.padEnd(15), ":", value);
+  });
+
   // TODO: Usar Object.entries() + forEach para imprimir cada clave y valor
   // Alinear las claves con padEnd para formato de tabla
 };
@@ -65,9 +116,18 @@ const inspectItem = (item) => {
  * @param {string} numericKey - El nombre de la propiedad numérica a analizar
  */
 const calculateStats = (numericKey) => {
-  // TODO: Usar Object.values() sobre el array de valores numéricos
-  // Calcular: total, promedio, máximo, mínimo
-  // Imprimir los resultados
+  const values = items.map(item => item[numericKey]);
+
+  const total = values.reduce((acc, val) => acc + val, 0);
+  const avg = total / values.length;
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+
+  console.log("\n📊 Estadísticas:");
+  console.log("Total:", total);
+  console.log("Promedio:", avg);
+  console.log("Máximo:", max);
+  console.log("Mínimo:", min);
 };
 
 // ============================================
@@ -81,11 +141,17 @@ const calculateStats = (numericKey) => {
  */
 const showWithOptionals = (item) => {
   console.log(`\n→ ${item.name}`);
-  // TODO: Mostrar propiedades básicas siempre
-  // TODO: Usar Object.hasOwn() para verificar propiedades opcionales
-  //       y mostrarlas solo si existen
-};
+  console.log("Monto:", item.amount);
+  console.log("Activo:", item.active);
 
+  if (Object.hasOwn(item, "client")) {
+    console.log("Cliente:", item.client);
+  }
+
+  if (Object.hasOwn(item, "provider")) {
+    console.log("Proveedor:", item.provider);
+  }
+};
 // ============================================
 // ITERACIÓN CON for...in
 // ============================================
@@ -96,8 +162,12 @@ const showWithOptionals = (item) => {
  */
 const printAllProperties = (item) => {
   console.log(`\n🔍 Propiedades de "${item.name}":`);
-  // TODO: Usar for...in + Object.hasOwn() para recorrer propiedades propias
-  // Imprimir cada clave y su valor
+
+  for (let key in item) {
+    if (Object.hasOwn(item, key)) {
+      console.log(key, ":", item[key]);
+    }
+  }
 };
 
 // ============================================
@@ -111,11 +181,8 @@ const printAllProperties = (item) => {
  * @returns {Object} Nuevo objeto con los cambios aplicados
  */
 const updateItem = (item, changes) => {
-  // TODO: Retornar un nuevo objeto usando spread + changes
-  // El objeto original NO debe modificarse
-  return {};
+  return { ...item, ...changes };
 };
-
 // ============================================
 // OPERACIONES CON EL ARRAY
 // ============================================
@@ -125,8 +192,7 @@ const updateItem = (item, changes) => {
  * @returns {Object[]} Array de elementos disponibles
  */
 const getAvailable = () => {
-  // TODO: Usar filter() por la propiedad booleana de tu dominio
-  return [];
+  return items.filter(item => item.active);
 };
 
 /**
@@ -135,8 +201,7 @@ const getAvailable = () => {
  * @returns {Object|undefined} El elemento encontrado o undefined
  */
 const findById = (id) => {
-  // TODO: Usar find()
-  return undefined;
+  return items.find(item => item.id === id);
 };
 
 /**
@@ -144,10 +209,10 @@ const findById = (id) => {
  * @returns {Object[]} Nuevo array con la propiedad adicional
  */
 const addCalculatedProp = () => {
-  // TODO: Usar map() para agregar una propiedad calculada
-  // Ejemplos: priceWithTax, totalPages, formattedDuration
-  // Recuerda: item => ({ ...item, newProp: calculation })
-  return [];
+  return items.map(item => ({
+    ...item,
+    amountWithTax: item.amount * 1.19
+  }));
 };
 
 /**
@@ -156,9 +221,9 @@ const addCalculatedProp = () => {
  * @returns {Object[]} Nuevo array ordenado
  */
 const sortByNumericProp = (ascending = true) => {
-  // TODO: Usar [...items].sort() con un comparador
-  // No mutar el array original
-  return [];
+  return [...items].sort((a, b) => {
+    return ascending ? a.amount - b.amount : b.amount - a.amount;
+  });
 };
 
 // ============================================
@@ -173,11 +238,22 @@ const buildReport = () => {
   console.log(`📦 CATÁLOGO: ${DOMAIN_NAME.toUpperCase()}`);
   console.log("=".repeat(50));
 
-  // TODO: Mostrar cantidad total de elementos
-  // TODO: Mostrar cuántos están disponibles/activos
-  // TODO: Mostrar estadísticas de la propiedad numérica principal
-  // TODO: Listar todos los elementos ordenados (usar sortByNumericProp)
-  // TODO: Mostrar el elemento con el valor numérico más alto y más bajo
+  console.log("Total:", items.length);
+
+  const available = getAvailable();
+  console.log("Activos:", available.length);
+
+  calculateStats("amount");
+
+  const sorted = sortByNumericProp();
+  console.log("\n📄 Ordenados:");
+  sorted.forEach(item => console.log(item.name, "-", item.amount));
+
+  const max = sortByNumericProp(false)[0];
+  const min = sortByNumericProp(true)[0];
+
+  console.log("\nMayor:", max.name);
+  console.log("Menor:", min.name);
 
   console.log("=".repeat(50));
 };
@@ -189,6 +265,24 @@ const buildReport = () => {
 console.log(`\n🚀 Iniciando catálogo: ${DOMAIN_NAME}`);
 console.log(`   Total de ${VALUE_LABEL}: ${items.length}`);
 
+inspectItem(items[0]);
+calculateStats("amount");
+items.forEach(showWithOptionals);
+printAllProperties(items[0]);
+
+const updated = updateItem(items[0], { amount: 999999 });
+console.log(updated);
+
+console.log(getAvailable());
+
+console.log(findById(2));
+console.log(findById(999));
+
+console.log(addCalculatedProp());
+
+console.log(sortByNumericProp());
+
+buildReport();
 // TODO: Llamar a las funciones implementadas en este orden:
 // 1. inspectItem(items[0])
 // 2. calculateStats("nombreDeTuPropiedadNumerica")
